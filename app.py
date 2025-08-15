@@ -99,7 +99,10 @@ def setup_database():
 # --- 2. CORE RAG FUNCTION ---
 
 def get_research_backed_answer(query):
-    # (The rest of this function is the same as before)
+    """
+    This function takes a user query, retrieves relevant documents,
+    and generates an answer using the Gemini LLM.
+    """
     if not query:
         return "Please ask a question."
         
@@ -125,13 +128,16 @@ def get_research_backed_answer(query):
     try:
         response = model.generate_content(prompt_template)
         answer = response.text
-        citations = "\n\n**Citations:**\n" + "\n".join(f"- {meta['title']}" for meta in set(tuple(d.items()) for d in retrieved_metadatas))
+        
+        # --- CORRECTED CITATION LOGIC ---
+        # The previous version had a buggy line here. This is the correct, simplified logic.
         unique_titles = set(meta['title'] for meta in retrieved_metadatas if meta.get('title'))
         citations = "\n\n**Citations:**\n" + "\n".join(f"- {title}" for title in unique_titles)
+        
         return answer + citations
     except Exception as e:
-        return f"An error occurred while generating the answer: {e}"
-
+        # The str(e) will now show the actual error message in the UI
+        return f"An error occurred while generating the answer: {str(e)}"
 
 # --- 3. GRADIO UI AND APP LAUNCH ---
 
